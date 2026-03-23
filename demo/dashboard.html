@@ -234,10 +234,14 @@
           grid.appendChild(card2.el);
           container.appendChild(grid);
 
-          const si1 = new SymbolInfo(card1.body, { symbol: 'FX:GBPUSD', theme });
+          let si1 = new SymbolInfo(card1.body, { symbol: 'FX:GBPUSD', theme });
           const si2 = new SymbolInfo(card2.body, { symbol: 'OANDA:XAUUSD', theme });
 
-          symbolSelect.addEventListener('change', () => si1.destroy && si1.destroy());
+          symbolSelect.addEventListener('change', () => {
+            card1.body.innerHTML = '';
+            si1 = new SymbolInfo(card1.body, { symbol: symbolSelect.value, theme: dashboard.getTheme() });
+            widgetInstances.symbolinfo.si1 = si1;
+          });
           widgetInstances.symbolinfo = { si1, si2 };
           break;
         }

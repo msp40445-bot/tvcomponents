@@ -95,6 +95,15 @@ export class DashboardLayout {
       this.panelContainers[panel.id] = content;
     });
 
+    // Mobile toggle button
+    this.mobileToggle = document.createElement("button");
+    this.mobileToggle.className = "tvd-mobile-toggle";
+    this.mobileToggle.innerHTML = `<svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor"><path d="M3 5h14M3 10h14M3 15h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg>`;
+    this.mobileToggle.addEventListener("click", () => {
+      this.sidebar.classList.toggle("tvd-sidebar--mobile-open");
+    });
+    this.root.appendChild(this.mobileToggle);
+
     // Show default panel
     this._updateActivePanel();
   }
@@ -148,7 +157,11 @@ export class DashboardLayout {
           <span class="tvd-sidebar__item-icon">${panel.icon || ""}</span>
           <span class="tvd-sidebar__item-label">${panel.label}</span>
         `;
-        item.addEventListener("click", () => this.showPanel(panel.id));
+        item.addEventListener("click", () => {
+          this.showPanel(panel.id);
+          // Close mobile sidebar after selection
+          this.sidebar.classList.remove("tvd-sidebar--mobile-open");
+        });
         groupEl.appendChild(item);
       });
 
