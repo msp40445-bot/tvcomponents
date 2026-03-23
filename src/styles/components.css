@@ -1,0 +1,220 @@
+/**
+ * TradingView Components - Base Styles
+ * Import this CSS file to get default styling for all components.
+ */
+
+/* ===== Reset & Base ===== */
+.tv-components-wrapper {
+  font-family: -apple-system, BlinkMacSystemFont, "Trebuchet MS", Roboto, Ubuntu, sans-serif;
+  color: #d1d4dc;
+  box-sizing: border-box;
+}
+
+.tv-components-wrapper *,
+.tv-components-wrapper *::before,
+.tv-components-wrapper *::after {
+  box-sizing: inherit;
+}
+
+/* ===== Widget Container ===== */
+.tradingview-widget-container {
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+  border-radius: 8px;
+}
+
+.tradingview-widget-container__widget {
+  width: 100%;
+  height: 100%;
+}
+
+/* ===== Layout Helpers ===== */
+.tv-grid {
+  display: grid;
+  gap: 20px;
+  padding: 20px;
+}
+
+.tv-grid-2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.tv-grid-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.tv-grid-4 {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+@media (max-width: 1200px) {
+  .tv-grid-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .tv-grid-3 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .tv-grid-2,
+  .tv-grid-3,
+  .tv-grid-4 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ===== Section Styles ===== */
+.tv-section {
+  margin-bottom: 30px;
+}
+
+.tv-section-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 15px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #2a2e39;
+  color: #d1d4dc;
+}
+
+.tv-section-title--light {
+  color: #131722;
+  border-bottom-color: #e1ecf2;
+}
+
+/* ===== Card Wrapper ===== */
+.tv-card {
+  background: #1e222d;
+  border: 1px solid #2a2e39;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: box-shadow 0.2s ease;
+}
+
+.tv-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.tv-card--light {
+  background: #ffffff;
+  border-color: #e1ecf2;
+}
+
+.tv-card--light:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.tv-card__header {
+  padding: 12px 16px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid #2a2e39;
+  color: #787b86;
+}
+
+.tv-card__header--light {
+  border-bottom-color: #e1ecf2;
+  color: #787b86;
+}
+
+.tv-card__body {
+  padding: 0;
+}
+
+/* ===== Ticker Tape Wrapper ===== */
+.tv-ticker-wrapper {
+  width: 100%;
+  overflow: hidden;
+  border-bottom: 1px solid #2a2e39;
+}
+
+.tv-ticker-wrapper--light {
+  border-bottom-color: #e1ecf2;
+}
+
+/* ===== Full-Width Layout ===== */
+.tv-full-width {
+  width: 100%;
+  max-width: 100%;
+}
+
+/* ===== Dashboard Layout ===== */
+.tv-dashboard {
+  display: grid;
+  gap: 20px;
+  padding: 20px;
+  grid-template-columns: 3fr 1fr;
+  grid-template-rows: auto;
+}
+
+.tv-dashboard__main {
+  grid-column: 1;
+}
+
+.tv-dashboard__sidebar {
+  grid-column: 2;
+}
+
+@media (max-width: 1024px) {
+  .tv-dashboard {
+    grid-template-columns: 1fr;
+  }
+
+  .tv-dashboard__sidebar {
+    grid-column: 1;
+  }
+}
+
+/* ===== Loading State ===== */
+.tv-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  color: #787b86;
+  font-size: 0.9rem;
+}
+
+.tv-loading::after {
+  content: "";
+  width: 20px;
+  height: 20px;
+  margin-left: 10px;
+  border: 2px solid #2a2e39;
+  border-top-color: #2962ff;
+  border-radius: 50%;
+  animation: tv-spin 0.8s linear infinite;
+}
+
+@keyframes tv-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ===== Copyright Link ===== */
+.tradingview-widget-copyright {
+  font-size: 13px;
+  line-height: 32px;
+  text-align: center;
+  vertical-align: top;
+  font-family: -apple-system, BlinkMacSystemFont, "Trebuchet MS", Roboto, Ubuntu, sans-serif;
+  color: #9db2bd;
+}
+
+.tradingview-widget-copyright .blue-text {
+  color: #2962FF;
+}
+
+.tradingview-widget-copyright a {
+  text-decoration: none;
+  color: #9db2bd;
+}
+
+.tradingview-widget-copyright a:hover .blue-text {
+  color: #1e53e5;
+}
