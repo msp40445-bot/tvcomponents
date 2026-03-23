@@ -1,0 +1,21 @@
+{
+  "name": "tvcomponents",
+  "version": "1.0.0",
+  "description": "Reusable TradingView widget components - drop into any project",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "npx serve demo -p 3000",
+    "lint": "echo 'No lint configured'"
+  },
+  "keywords": [
+    "tradingview",
+    "widgets",
+    "charts",
+    "trading",
+    "finance",
+    "technical-analysis"
+  ],
+  "author": "",
+  "license": "MIT"
+}
