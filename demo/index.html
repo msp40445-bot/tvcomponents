@@ -158,13 +158,13 @@
           <option value="BINANCE:ETHUSDT">Ethereum (ETH)</option>
           <option value="SP:SPX">S&P 500</option>
         </select>
-        <button onclick="setChartInterval('1')">1m</button>
-        <button onclick="setChartInterval('5')">5m</button>
-        <button onclick="setChartInterval('15')">15m</button>
-        <button onclick="setChartInterval('60')">1h</button>
-        <button onclick="setChartInterval('240')">4h</button>
-        <button onclick="setChartInterval('D')" class="active">1D</button>
-        <button onclick="setChartInterval('W')">1W</button>
+        <button class="chart-interval-btn" data-interval="1">1m</button>
+        <button class="chart-interval-btn" data-interval="5">5m</button>
+        <button class="chart-interval-btn" data-interval="15">15m</button>
+        <button class="chart-interval-btn" data-interval="60">1h</button>
+        <button class="chart-interval-btn" data-interval="240">4h</button>
+        <button class="chart-interval-btn active" data-interval="D">1D</button>
+        <button class="chart-interval-btn" data-interval="W">1W</button>
       </div>
       <div class="demo-widget" id="chart-container" style="height:600px;"></div>
     </div>
@@ -227,11 +227,11 @@
       <h2>Screener</h2>
       <p class="desc">Filter and sort stocks, forex pairs, or crypto by performance, oscillators, and moving averages.</p>
       <div class="demo-controls">
-        <button onclick="setScreenerMarket('forex')" class="active">Forex</button>
-        <button onclick="setScreenerMarket('america')">US Stocks</button>
-        <button onclick="setScreenerMarket('crypto')">Crypto</button>
-        <button onclick="setScreenerMarket('uk')">UK Stocks</button>
-        <button onclick="setScreenerMarket('cfd')">CFDs</button>
+        <button class="screener-market-btn active" data-market="forex">Forex</button>
+        <button class="screener-market-btn" data-market="america">US Stocks</button>
+        <button class="screener-market-btn" data-market="crypto">Crypto</button>
+        <button class="screener-market-btn" data-market="uk">UK Stocks</button>
+        <button class="screener-market-btn" data-market="cfd">CFDs</button>
       </div>
       <div class="demo-widget" id="screener-container" style="height:600px;"></div>
     </div>
@@ -355,11 +355,13 @@
     document.getElementById('chart-symbol').addEventListener('change', (e) => {
       chart.setSymbol(e.target.value);
     });
-    window.setChartInterval = (interval) => {
-      chart.setInterval(interval);
-      document.querySelectorAll('#chart-controls button').forEach(b => b.classList.remove('active'));
-      event.target.classList.add('active');
-    };
+    document.querySelectorAll('.chart-interval-btn').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        chart.setInterval(e.target.dataset.interval);
+        document.querySelectorAll('.chart-interval-btn').forEach(b => b.classList.remove('active'));
+        e.target.classList.add('active');
+      });
+    });
 
     // --- Technical Analysis ---
     new TechnicalAnalysis(document.getElementById('ta-container-1'), {
@@ -413,11 +415,13 @@
       market: 'forex',
       height: '600',
     });
-    window.setScreenerMarket = (market) => {
-      screener.setMarket(market);
-      document.querySelectorAll('#screener .demo-controls button').forEach(b => b.classList.remove('active'));
-      event.target.classList.add('active');
-    };
+    document.querySelectorAll('.screener-market-btn').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        screener.setMarket(e.target.dataset.market);
+        document.querySelectorAll('.screener-market-btn').forEach(b => b.classList.remove('active'));
+        e.target.classList.add('active');
+      });
+    });
 
     // --- Forex Cross Rates ---
     new ForexCrossRates(document.getElementById('forex-cross-container'), {

@@ -68,8 +68,8 @@ your-project/
 
 ```bash
 cd tvcomponents
-npx serve demo -p 3000
-# Open http://localhost:3000
+npx serve . -p 3000
+# Open http://localhost:3000/demo/
 ```
 
 ---

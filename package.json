@@ -5,7 +5,7 @@
   "main": "src/index.js",
   "type": "module",
   "scripts": {
-    "dev": "npx serve demo -p 3000",
+    "dev": "npx serve . -p 3000",
     "lint": "echo 'No lint configured'"
   },
   "keywords": [
