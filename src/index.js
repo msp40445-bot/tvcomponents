@@ -39,6 +39,9 @@ export { Timeline } from "./components/Timeline.js";
 export { CompanyProfile } from "./components/CompanyProfile.js";
 export { FundamentalData } from "./components/FundamentalData.js";
 
+// Layout
+export { DashboardLayout } from "./components/DashboardLayout.js";
+
 // Utilities
 export { DEFAULT_SYMBOLS, THEME, INTERVALS, CHART_STYLES, COLOR_THEMES } from "./utils/config.js";
 export { loadScript, loadTVLibrary, loadWidgetScript, createWidgetContainer, embedWidget, generateId } from "./utils/widgetLoader.js";

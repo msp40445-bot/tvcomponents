@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TV Components - Dashboard</title>
+  <link rel="stylesheet" href="../src/styles/components.css" />
+  <link rel="stylesheet" href="../src/styles/dashboard.css" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100%; overflow: hidden; }
+  </style>
+</head>
+<body>
+
+  <div id="app"></div>
+
+  <script type="module">
+    import { DashboardLayout } from '../src/components/DashboardLayout.js';
+    import { Chart } from '../src/components/Chart.js';
+    import { TechnicalAnalysis } from '../src/components/TechnicalAnalysis.js';
+    import { Watchlist } from '../src/components/Watchlist.js';
+    import { TickerTape } from '../src/components/TickerTape.js';
+    import { SymbolInfo } from '../src/components/SymbolInfo.js';
+    import { SymbolOverview } from '../src/components/SymbolOverview.js';
+    import { MarketOverview } from '../src/components/MarketOverview.js';
+    import { Screener } from '../src/components/Screener.js';
+    import { MiniChart } from '../src/components/MiniChart.js';
+    import { ForexCrossRates } from '../src/components/ForexCrossRates.js';
+    import { ForexHeatMap } from '../src/components/ForexHeatMap.js';
+    import { CryptoMarket } from '../src/components/CryptoMarket.js';
+    import { StockMarket } from '../src/components/StockMarket.js';
+    import { StockHeatmap } from '../src/components/StockHeatmap.js';
+    import { EconomicCalendar } from '../src/components/EconomicCalendar.js';
+    import { Timeline } from '../src/components/Timeline.js';
+    import { CompanyProfile } from '../src/components/CompanyProfile.js';
+    import { FundamentalData } from '../src/components/FundamentalData.js';
+
+    // ---- Panel definitions ----
+    const panels = [
+      // Trading
+      { id: 'chart',       label: 'Advanced Chart',      icon: '\u{1F4C8}', group: 'Trading',       description: 'Full-featured chart with candlesticks, indicators & drawing tools' },
+      { id: 'ta',          label: 'Technical Analysis',   icon: '\u{1F3AF}', group: 'Trading',       description: 'Buy/Sell/Neutral gauges with oscillators & moving averages' },
+      { id: 'screener',    label: 'Screener',             icon: '\u{1F50D}', group: 'Trading',       description: 'Filter & sort by performance, oscillators & moving averages' },
+
+      // Market Data
+      { id: 'watchlist',   label: 'Watchlist',            icon: '\u{1F4CB}', group: 'Market Data',   description: 'Live market quotes grouped by category' },
+      { id: 'ticker',      label: 'Ticker Tape',          icon: '\u{1F4F0}', group: 'Market Data',   description: 'Scrolling ticker bar with real-time prices' },
+      { id: 'overview',    label: 'Market Overview',      icon: '\u{1F30D}', group: 'Market Data',   description: 'Multi-tab overview for indices, futures, bonds & forex' },
+      { id: 'symbolinfo',  label: 'Symbol Info',          icon: '\u2139\uFE0F',  group: 'Market Data',   description: 'Detailed symbol information with current price & change' },
+      { id: 'symbolovw',   label: 'Symbol Overview',      icon: '\u{1F4CA}', group: 'Market Data',   description: 'Compact multi-symbol tabs with area/candle chart' },
+      { id: 'minicharts',  label: 'Mini Charts',          icon: '\u26A1',    group: 'Market Data',   description: 'Compact price overview charts for quick reference' },
+
+      // Forex
+      { id: 'fxcross',     label: 'Forex Cross Rates',    icon: '\u{1F4B1}', group: 'Forex',         description: 'Currency cross rate matrix between major pairs' },
+      { id: 'fxheatmap',   label: 'Forex Heat Map',       icon: '\u{1F525}', group: 'Forex',         description: 'Visual heat map of forex currency strength' },
+
+      // Heatmaps
+      { id: 'stockheat',   label: 'Stock Heatmap',        icon: '\u{1F7E9}', group: 'Heatmaps',      description: 'Interactive treemap of S&P 500 sector performance' },
+      { id: 'cryptoheat',  label: 'Crypto Heatmap',       icon: '\u{1FA99}', group: 'Heatmaps',      description: 'Cryptocurrency market heatmap of top coins' },
+      { id: 'stockmarket', label: 'Stock Hotlists',       icon: '\u{1F4C3}', group: 'Heatmaps',      description: 'Top gainers, losers & most active stocks' },
+
+      // News & Events
+      { id: 'calendar',    label: 'Economic Calendar',    icon: '\u{1F4C5}', group: 'News & Events', description: 'Upcoming economic events & market-moving announcements' },
+      { id: 'timeline',    label: 'News Timeline',        icon: '\u{1F4F0}', group: 'News & Events', description: 'Latest market news, analysis & trading ideas' },
+
+      // Company
+      { id: 'company',     label: 'Company Profile',      icon: '\u{1F3E2}', group: 'Company',       description: 'Detailed company info, sector, key data' },
+      { id: 'fundamentals',label: 'Fundamental Data',     icon: '\u{1F4D2}', group: 'Company',       description: 'Key financial metrics, valuation ratios & statements' },
+    ];
+
+    // ---- State ----
+    let currentTheme = 'dark';
+    const widgetInstances = {};
+
+    // ---- Create Dashboard Layout ----
+    const dashboard = new DashboardLayout(document.getElementById('app'), {
+      title: 'TV Components',
+      theme: currentTheme,
+      panels,
+      defaultPanel: 'chart',
+      onPanelChange: (panelId) => {
+        // Lazy-load widgets on first visit
+        if (!widgetInstances[panelId]) {
+          initPanel(panelId, dashboard.getTheme());
+        }
+      },
+    });
+
+    // ---- Widget Initializers ----
+    function initPanel(panelId, theme) {
+      const container = dashboard.getPanelContent(panelId);
+      if (!container || widgetInstances[panelId]) return;
+
+      switch (panelId) {
+
+        case 'chart': {
+          // Controls
+          const controls = _el('div', 'tvd-controls');
+          const symbolSelect = _el('select');
+          [
+            ['FX:GBPUSD', 'GBP/USD'], ['FX:EURUSD', 'EUR/USD'], ['FX:USDJPY', 'USD/JPY'],
+            ['OANDA:XAUUSD', 'Gold (XAU)'], ['NASDAQ:AAPL', 'Apple'], ['NASDAQ:TSLA', 'Tesla'],
+            ['BINANCE:BTCUSDT', 'Bitcoin'], ['BINANCE:ETHUSDT', 'Ethereum'], ['SP:SPX', 'S&P 500'],
+            ['NASDAQ:NVDA', 'NVIDIA'], ['NASDAQ:MSFT', 'Microsoft'],
+          ].forEach(([val, txt]) => {
+            const o = _el('option'); o.value = val; o.textContent = txt; symbolSelect.appendChild(o);
+          });
+          controls.appendChild(symbolSelect);
+
+          const intervals = [['1','1m'],['5','5m'],['15','15m'],['60','1h'],['240','4h'],['D','1D'],['W','1W']];
+          intervals.forEach(([val, txt]) => {
+            const btn = _el('button'); btn.textContent = txt; btn.dataset.interval = val;
+            if (val === 'D') btn.classList.add('tvd-active');
+            btn.addEventListener('click', () => {
+              chart.setInterval(val);
+              controls.querySelectorAll('button').forEach(b => b.classList.remove('tvd-active'));
+              btn.classList.add('tvd-active');
+            });
+            controls.appendChild(btn);
+          });
+          container.appendChild(controls);
+
+          const chartDiv = _el('div', 'tvd-widget-card');
+          chartDiv.style.height = '600px';
+          container.appendChild(chartDiv);
+
+          const chart = new Chart(chartDiv, { symbol: 'FX:GBPUSD', interval: 'D', theme, height: '600' });
+          symbolSelect.addEventListener('change', () => chart.setSymbol(symbolSelect.value));
+          widgetInstances.chart = chart;
+          break;
+        }
+
+        case 'ta': {
+          const controls = _el('div', 'tvd-controls');
+          const symbolSelect = _el('select');
+          [
+            ['FX:GBPUSD', 'GBP/USD'], ['FX:EURUSD', 'EUR/USD'], ['OANDA:XAUUSD', 'Gold'],
+            ['NASDAQ:AAPL', 'Apple'], ['BINANCE:BTCUSDT', 'Bitcoin'], ['SP:SPX', 'S&P 500'],
+          ].forEach(([val, txt]) => {
+            const o = _el('option'); o.value = val; o.textContent = txt; symbolSelect.appendChild(o);
+          });
+          controls.appendChild(symbolSelect);
+          container.appendChild(controls);
+
+          const grid = _el('div', 'tvd-grid tvd-grid--2');
+          const card1 = _widgetCard('Summary View');
+          card1.body.style.height = '480px';
+          const card2 = _widgetCard('Detailed View');
+          card2.body.style.height = '480px';
+          grid.appendChild(card1.el);
+          grid.appendChild(card2.el);
+          container.appendChild(grid);
+
+          const ta1 = new TechnicalAnalysis(card1.body, { symbol: 'FX:GBPUSD', theme, height: '480', displayMode: 'single' });
+          const ta2 = new TechnicalAnalysis(card2.body, { symbol: 'FX:GBPUSD', theme, height: '480', displayMode: 'multiple' });
+
+          symbolSelect.addEventListener('change', () => {
+            ta1.setSymbol(symbolSelect.value);
+            ta2.setSymbol(symbolSelect.value);
+          });
+
+          widgetInstances.ta = { ta1, ta2 };
+          break;
+        }
+
+        case 'screener': {
+          const controls = _el('div', 'tvd-controls');
+          const markets = [['forex','Forex'],['america','US Stocks'],['crypto','Crypto'],['uk','UK Stocks'],['cfd','CFDs']];
+          markets.forEach(([val, txt], i) => {
+            const btn = _el('button'); btn.textContent = txt; btn.dataset.market = val;
+            if (i === 0) btn.classList.add('tvd-active');
+            btn.addEventListener('click', () => {
+              screener.setMarket(val);
+              controls.querySelectorAll('button').forEach(b => b.classList.remove('tvd-active'));
+              btn.classList.add('tvd-active');
+            });
+            controls.appendChild(btn);
+          });
+          container.appendChild(controls);
+
+          const card = _widgetCard('Market Screener');
+          card.body.style.height = '600px';
+          container.appendChild(card.el);
+
+          const screener = new Screener(card.body, { theme, market: 'forex', height: '600' });
+          widgetInstances.screener = screener;
+          break;
+        }
+
+        case 'watchlist': {
+          const card = _widgetCard('Market Quotes');
+          card.body.style.height = '600px';
+          container.appendChild(card.el);
+
+          widgetInstances.watchlist = new Watchlist(card.body, { theme, height: '600' });
+          break;
+        }
+
+        case 'ticker': {
+          const card = _widgetCard('Ticker Tape');
+          container.appendChild(card.el);
+
+          widgetInstances.ticker = new TickerTape(card.body, { theme });
+          break;
+        }
+
+        case 'overview': {
+          const card = _widgetCard('Market Overview');
+          card.body.style.height = '600px';
+          container.appendChild(card.el);
+
+          widgetInstances.overview = new MarketOverview(card.body, { theme, height: '600' });
+          break;
+        }
+
+        case 'symbolinfo': {
+          const controls = _el('div', 'tvd-controls');
+          const symbolSelect = _el('select');
+          [
+            ['FX:GBPUSD','GBP/USD'],['FX:EURUSD','EUR/USD'],['OANDA:XAUUSD','Gold'],
+            ['NASDAQ:AAPL','Apple'],['NASDAQ:TSLA','Tesla'],['BINANCE:BTCUSDT','Bitcoin'],
+            ['SP:SPX','S&P 500'],['NASDAQ:NVDA','NVIDIA'],
+          ].forEach(([val,txt]) => {
+            const o = _el('option'); o.value = val; o.textContent = txt; symbolSelect.appendChild(o);
+          });
+          controls.appendChild(symbolSelect);
+          container.appendChild(controls);
+
+          const grid = _el('div', 'tvd-grid tvd-grid--2');
+          const card1 = _widgetCard('Primary Symbol');
+          const card2 = _widgetCard('Secondary Symbol');
+          grid.appendChild(card1.el);
+          grid.appendChild(card2.el);
+          container.appendChild(grid);
+
+          let si1 = new SymbolInfo(card1.body, { symbol: 'FX:GBPUSD', theme });
+          const si2 = new SymbolInfo(card2.body, { symbol: 'OANDA:XAUUSD', theme });
+
+          symbolSelect.addEventListener('change', () => {
+            card1.body.innerHTML = '';
+            si1 = new SymbolInfo(card1.body, { symbol: symbolSelect.value, theme: dashboard.getTheme() });
+            widgetInstances.symbolinfo.si1 = si1;
+          });
+          widgetInstances.symbolinfo = { si1, si2 };
+          break;
+        }
+
+        case 'symbolovw': {
+          const card = _widgetCard('Symbol Overview');
+          card.body.style.height = '420px';
+          container.appendChild(card.el);
+
+          widgetInstances.symbolovw = new SymbolOverview(card.body, { theme, height: '420' });
+          break;
+        }
+
+        case 'minicharts': {
+          const grid = _el('div', 'tvd-grid tvd-grid--4');
+          const symbols = [
+            ['FX:GBPUSD','GBP/USD'], ['OANDA:XAUUSD','Gold'], ['NASDAQ:AAPL','Apple'],
+            ['BINANCE:BTCUSDT','Bitcoin'], ['SP:SPX','S&P 500'], ['FX:EURUSD','EUR/USD'],
+            ['NASDAQ:TSLA','Tesla'], ['NASDAQ:NVDA','NVIDIA'],
+          ];
+          const minis = symbols.map(([sym, label]) => {
+            const card = _widgetCard(label);
+            card.body.style.height = '220px';
+            grid.appendChild(card.el);
+            return new MiniChart(card.body, { symbol: sym, theme, height: '220' });
+          });
+          container.appendChild(grid);
+          widgetInstances.minicharts = minis;
+          break;
+        }
+
+        case 'fxcross': {
+          const card = _widgetCard('Forex Cross Rates');
+          card.body.style.height = '420px';
+          container.appendChild(card.el);
+
+          widgetInstances.fxcross = new ForexCrossRates(card.body, { theme, height: '420' });
+          break;
+        }
+
+        case 'fxheatmap': {
+          const card = _widgetCard('Forex Heat Map');
+          card.body.style.height = '520px';
+          container.appendChild(card.el);
+
+          widgetInstances.fxheatmap = new ForexHeatMap(card.body, { theme, height: '520' });
+          break;
+        }
+
+        case 'stockheat': {
+          const card = _widgetCard('S&P 500 Heatmap');
+          card.body.style.height = '520px';
+          container.appendChild(card.el);
+
+          widgetInstances.stockheat = new StockHeatmap(card.body, { theme, height: '520' });
+          break;
+        }
+
+        case 'cryptoheat': {
+          const card = _widgetCard('Crypto Market Heatmap');
+          card.body.style.height = '520px';
+          container.appendChild(card.el);
+
+          widgetInstances.cryptoheat = new CryptoMarket(card.body, { theme, height: '520' });
+          break;
+        }
+
+        case 'stockmarket': {
+          const card = _widgetCard('Stock Market Hotlists');
+          card.body.style.height = '520px';
+          container.appendChild(card.el);
+
+          widgetInstances.stockmarket = new StockMarket(card.body, { theme, height: '520' });
+          break;
+        }
+
+        case 'calendar': {
+          const card = _widgetCard('Economic Calendar');
+          card.body.style.height = '520px';
+          container.appendChild(card.el);
+
+          widgetInstances.calendar = new EconomicCalendar(card.body, { theme, height: '520' });
+          break;
+        }
+
+        case 'timeline': {
+          const card = _widgetCard('Market News');
+          card.body.style.height = '520px';
+          container.appendChild(card.el);
+
+          widgetInstances.timeline = new Timeline(card.body, { theme, height: '520' });
+          break;
+        }
+
+        case 'company': {
+          const controls = _el('div', 'tvd-controls');
+          const symbolSelect = _el('select');
+          [
+            ['NASDAQ:AAPL','Apple'],['NASDAQ:TSLA','Tesla'],['NASDAQ:MSFT','Microsoft'],
+            ['NASDAQ:AMZN','Amazon'],['NASDAQ:GOOGL','Google'],['NASDAQ:NVDA','NVIDIA'],
+            ['NASDAQ:META','Meta'],['NYSE:JPM','JP Morgan'],
+          ].forEach(([val,txt]) => {
+            const o = _el('option'); o.value = val; o.textContent = txt; symbolSelect.appendChild(o);
+          });
+          controls.appendChild(symbolSelect);
+          container.appendChild(controls);
+
+          const card = _widgetCard('Company Profile');
+          card.body.style.height = '520px';
+          container.appendChild(card.el);
+
+          const cp = new CompanyProfile(card.body, { symbol: 'NASDAQ:AAPL', theme, height: '520' });
+          symbolSelect.addEventListener('change', () => {
+            card.body.innerHTML = '';
+            widgetInstances.company = new CompanyProfile(card.body, { symbol: symbolSelect.value, theme: dashboard.getTheme(), height: '520' });
+          });
+          widgetInstances.company = cp;
+          break;
+        }
+
+        case 'fundamentals': {
+          const controls = _el('div', 'tvd-controls');
+          const symbolSelect = _el('select');
+          [
+            ['NASDAQ:AAPL','Apple'],['NASDAQ:TSLA','Tesla'],['NASDAQ:MSFT','Microsoft'],
+            ['NASDAQ:AMZN','Amazon'],['NASDAQ:GOOGL','Google'],['NASDAQ:NVDA','NVIDIA'],
+            ['NASDAQ:META','Meta'],['NYSE:JPM','JP Morgan'],
+          ].forEach(([val,txt]) => {
+            const o = _el('option'); o.value = val; o.textContent = txt; symbolSelect.appendChild(o);
+          });
+          controls.appendChild(symbolSelect);
+          container.appendChild(controls);
+
+          const card = _widgetCard('Financial Data');
+          card.body.style.height = '520px';
+          container.appendChild(card.el);
+
+          const fd = new FundamentalData(card.body, { symbol: 'NASDAQ:AAPL', theme, height: '520' });
+          symbolSelect.addEventListener('change', () => {
+            card.body.innerHTML = '';
+            widgetInstances.fundamentals = new FundamentalData(card.body, { symbol: symbolSelect.value, theme: dashboard.getTheme(), height: '520' });
+          });
+          widgetInstances.fundamentals = fd;
+          break;
+        }
+      }
+    }
+
+    // ---- Initialize default panel ----
+    initPanel('chart', currentTheme);
+
+    // ---- Helpers ----
+    function _el(tag, className) {
+      const el = document.createElement(tag);
+      if (className) el.className = className;
+      return el;
+    }
+
+    function _widgetCard(title) {
+      const el = _el('div', 'tvd-widget-card');
+      const header = _el('div', 'tvd-widget-card__header');
+      header.textContent = title;
+      const body = _el('div', 'tvd-widget-card__body');
+      el.appendChild(header);
+      el.appendChild(body);
+      return { el, header, body };
+    }
+  </script>
+
+</body>
+</html>
